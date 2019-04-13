@@ -22,7 +22,7 @@
  *    'Sun, 17 May 1998 03:00:00 GMT+01' => Date()
  */
 function parseDataFromRfc2822(value) {
-   throw new Error('Not implemented');
+   return new Date(value);
 }
 
 /**
@@ -37,7 +37,7 @@ function parseDataFromRfc2822(value) {
  *    '2016-01-19T08:07:37Z' => Date()
  */
 function parseDataFromIso8601(value) {
-   throw new Error('Not implemented');
+   return new Date(value);
 }
 
 
@@ -56,7 +56,17 @@ function parseDataFromIso8601(value) {
  *    Date(2015,1,1)    => false
  */
 function isLeapYear(date) {
-   throw new Error('Not implemented');
+   const year = date.getFullYear();
+   switch(true) {
+        case year % 4 !== 0: 
+            return false;
+        case year % 100 !== 0:
+            return true;
+        case year % 400 !== 0: 
+            return false;
+        default:
+            return true;
+   }
 }
 
 
@@ -76,7 +86,19 @@ function isLeapYear(date) {
  *    Date(2000,1,1,10,0,0),  Date(2000,1,1,15,20,10,453)   => "05:20:10.453"
  */
 function timeSpanToString(startDate, endDate) {
-   throw new Error('Not implemented');
+   let timespanInSeconds = (endDate - startDate) / 1000;
+   const hours = padLeft(Math.floor(timespanInSeconds / 3600), 2);
+   timespanInSeconds = timespanInSeconds % 3600;
+   const minutes =  padLeft(Math.floor(timespanInSeconds / 60), 2);
+   timespanInSeconds = timespanInSeconds % 60;
+   const seconds = padLeft(Math.floor(timespanInSeconds), 2);
+   const milliseconds = padLeft(Math.floor((timespanInSeconds - seconds) * 1000), 3);
+   return `${hours}:${minutes}:${seconds}.${milliseconds}`;
+}
+
+function padLeft(num, zerosCount) {
+    const zeros = '0'.repeat(zerosCount);
+    return (zeros + num).slice(-zerosCount);
 }
 
 
@@ -94,7 +116,11 @@ function timeSpanToString(startDate, endDate) {
  *    Date.UTC(2016,3,5,21, 0) => Math.PI/2
  */
 function angleBetweenClockHands(date) {
-    throw new Error('Not implemented');
+    const hour = date.getUTCHours();
+    const minute = date.getUTCMinutes();
+    let angle = Math.abs(0.5 * (60 * hour - 11 * minute)) % 360;
+    angle = angle <= 180 ? angle : Math.abs(360 - angle);
+    return angle * Math.PI / 180;
 }
 
 
