@@ -59,9 +59,8 @@ function getJSON(obj) {
  */
 function fromJSON(proto, json) {
     let obj = JSON.parse(json);
-    console.log(obj);
-    obj.__proto__ = proto;
-    return obj;
+    let resultObject = Object.create(proto);
+    return Object.assign(resultObject, obj);
 }
 
 
@@ -116,33 +115,123 @@ function fromJSON(proto, json) {
 const cssSelectorBuilder = {
 
     element: function(value) {
-        throw new Error('Not implemented');
+        return new Selector('element', value);
     },
 
     id: function(value) {
-        throw new Error('Not implemented');
+        return new Selector('id', value);
     },
 
     class: function(value) {
-        throw new Error('Not implemented');
+        return new Selector('className', value);
     },
 
     attr: function(value) {
-        throw new Error('Not implemented');
+        return new Selector('attribute', value);
     },
 
     pseudoClass: function(value) {
-        throw new Error('Not implemented');
+        return new Selector('pseudoClass', value);
     },
 
     pseudoElement: function(value) {
-        throw new Error('Not implemented');
+        return new Selector('pseudoElement', value);
     },
 
     combine: function(selector1, combinator, selector2) {
-        throw new Error('Not implemented');
+        return new CombineSelector(selector1, combinator, selector2);
     },
 };
+
+function CombineSelector(selector1, combinator, selector2) {
+    this.selector1 = selector1;
+    this.combinator = combinator;
+    this.selector2 = selector2;
+}
+
+CombineSelector.prototype.stringify = function() {
+    return `${this.selector1.stringify()} ${this.combinator} ${this.selector2.stringify()}`;
+}
+
+function Selector(type, value) {
+    this.cache = {
+        element: '',
+        id: '',
+        className: [],
+        attribute: [],
+        pseudoClass: [],
+        pseudoElement: '',
+    };
+    if (Array.isArray(this.cache[type])) {
+        this.cache[type] = [value];
+    } else {
+        this.cache[type] = value;
+    }
+}
+
+Selector.prototype.stringify = function() {
+    let result = this.cache.element;
+    if(this.cache.id) {
+        result += `#${this.cache.id}`;
+    }
+    result += this.cache.className.map(className=>`.${className}`).join('');
+    result += this.cache.attribute.map(attribute=>`[${attribute}]`).join('');
+    result += this.cache.pseudoClass.map(pseudoClass=>`:${pseudoClass}`).join('');
+    if(this.cache.pseudoElement) {
+        result += `::${this.cache.pseudoElement}`;
+    }
+
+    return result;
+}
+
+Selector.prototype.element = function() {
+    if (this.cache.element) {
+        throw new Error('Element, id and pseudo-element should not occur more then one time inside the selector');
+    }
+    throw new Error('Selector parts should be arranged in the following order: element, id, class, attribute, pseudo-class, pseudo-element');
+}
+
+Selector.prototype.id = function(value) {
+    if (this.cache.id) {
+        throw new Error('Element, id and pseudo-element should not occur more then one time inside the selector');
+    }
+    if (this.cache.className.length || this.cache.attribute.length || this.cache.pseudoClass.length || this.cache.pseudoElement) {
+        throw new Error('Selector parts should be arranged in the following order: element, id, class, attribute, pseudo-class, pseudo-element');
+    }
+    this.cache.id = value;
+    return this;
+}
+Selector.prototype.class = function(value) {
+    if (this.cache.attribute.length || this.cache.pseudoClass.length || this.cache.pseudoElement) {
+        throw new Error('Selector parts should be arranged in the following order: element, id, class, attribute, pseudo-class, pseudo-element');
+    }
+    this.cache.className.push(value);
+    return this;
+}
+
+Selector.prototype.attr = function(value) {
+    if (this.cache.pseudoClass.length || this.cache.pseudoElement) {
+        throw new Error('Selector parts should be arranged in the following order: element, id, class, attribute, pseudo-class, pseudo-element');
+    }
+    this.cache.attribute.push(value);
+    return this;
+}
+
+Selector.prototype.pseudoClass = function(value) {
+    if (this.cache.pseudoElement) {
+        throw new Error('Selector parts should be arranged in the following order: element, id, class, attribute, pseudo-class, pseudo-element');
+    }
+    this.cache.pseudoClass.push(value);
+    return this;
+}
+
+Selector.prototype.pseudoElement = function(value) {
+    if(this.cache.pseudoElement) {
+        throw new Error('Element, id and pseudo-element should not occur more then one time inside the selector');
+    }
+    this.cache.pseudoElement = value;
+    return this;
+}
 
 
 module.exports = {
