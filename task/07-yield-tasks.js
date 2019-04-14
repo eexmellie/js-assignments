@@ -102,14 +102,16 @@ function* getFibonacciSequence() {
  *
  */
 function* depthTraversalTree(root) {
-    // yield root;
-    // if (root.children) {
-    //     for (var i = 0; i < root.children.length; i++) {
-    //         let childNode = root.children[i];
-    //         yield* depthTraversalTree(childNode);
-    //     }
-    // }
-    throw new Error('Not implemented');
+    let nodesToTraverse = [root];
+    while (nodesToTraverse.length > 0) {
+        let currentNode = nodesToTraverse.pop();
+        if (currentNode.children) {
+            for (var i = currentNode.children.length - 1; i >= 0; i--) {
+                nodesToTraverse.push(currentNode.children[i])
+            }
+        }
+        yield currentNode;
+    }
 }
 
 
@@ -135,15 +137,15 @@ function* depthTraversalTree(root) {
  *
  */
 function* breadthTraversalTree(root) {
-    // let nodesToTraverse = [root];
-    // while (nodesToTraverse.length > 0) {
-    //     let currentNode = nodesToTraverse.shift();
-    //     if (currentNode.children) {
-    //         nodesToTraverse.push(...currentNode.children);
-    //     }
-    //     yield currentNode;
-    // }
-    throw new Error('Not implemented');
+    let nodesToTraverse = [root];
+    while (nodesToTraverse.length > 0) {
+        let currentNode = nodesToTraverse[nodesToTraverse.length - 1];
+        if (currentNode.children) {
+            let childNodes = currentNode.children.reverse();
+            nodesToTraverse = childNodes.concat(...nodesToTraverse);
+        }
+        yield nodesToTraverse.pop();
+    }
 }
 
 
@@ -161,7 +163,27 @@ function* breadthTraversalTree(root) {
  *   [ 1, 3, 5, ... ], [ -1 ] => [ -1, 1, 3, 5, ...]
  */
 function* mergeSortedSequences(source1, source2) {
-    throw new Error('Not implemented');
+    let sequence1 = source1();
+    let sequence2 = source2();
+    let output1 = sequence1.next();
+    let output2 = sequence2.next();
+    while (!output1.done && !output2.done) {
+        if (output1.value < output2.value) {
+            yield output1.value;
+            output1 = sequence1.next();
+        } else {
+            yield output2.value;
+            output2 = sequence2.next();
+        }
+    }
+    while (!output1.done) {
+        yield output1.value;
+        output1 = sequence1.next();
+    }
+    while (!output2.done) {
+        yield output2.value;
+        output2 = sequence2.next();
+    }
 }
 
 
