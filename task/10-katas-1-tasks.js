@@ -56,7 +56,56 @@ function createCompassPoints() {
  *   'nothing to do' => 'nothing to do'
  */
 function* expandBraces(str) {
-    throw new Error('Not implemented');
+    let strWithOptions = str;
+    let optionsStartIndex = strWithOptions.indexOf('{');
+    
+    if (optionsStartIndex < 0) {
+        yield strWithOptions;
+        return;
+    }
+
+    let optionsEndIndex;
+    let counter = 0;
+    for (var i = optionsStartIndex + 1; i < strWithOptions.length; i++) {
+        let char = strWithOptions[i];
+        if (char === '{') {
+            counter++;
+        } else if (char === '}') {
+            if (counter > 0) {
+                counter--;
+            } else {
+                optionsEndIndex = i;
+                break;
+            }
+        }
+    }
+    if (!optionsEndIndex) {
+        yield strWithOptions;
+        return;
+    }
+
+    let options = strWithOptions.slice(optionsStartIndex + 1, optionsEndIndex);
+    let optionsArr = [];
+    let optionStartIndex;
+    counter = 0;
+    for (var i = 0; i < options.length; i++) {
+        let char = options[i];
+        if (char === '{') {
+            counter++;
+        } else if (char === '}') {
+            counter--;
+        } else if (char === ',' && !counter) {
+            optionsArr.push(options.slice(optionStartIndex, i));
+            optionStartIndex = i + 1;
+        }
+    }
+    optionsArr.push(options.slice(optionStartIndex));
+
+    for (var i = 0; i < optionsArr.length; i++) {
+        let option = optionsArr[i];
+        let newStr = strWithOptions.replace(`{${options}}`, option);
+        yield* expandBraces(newStr);
+    }
 }
 
 
