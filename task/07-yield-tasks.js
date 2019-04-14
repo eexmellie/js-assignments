@@ -33,7 +33,20 @@
  *
  */
 function* get99BottlesOfBeer() {
-    throw new Error('Not implemented');
+    for (var i = 99; i > 0; i--) {
+        if (i === 2) {
+            yield `${i} bottles of beer on the wall, ${i} bottles of beer.`;
+            yield `Take one down and pass it around, ${i-1} bottle of beer on the wall.`;
+        } else if (i === 1) {
+            yield `${i} bottle of beer on the wall, ${i} bottle of beer.`;
+            yield `Take one down and pass it around, no more bottles of beer on the wall.`;
+        } else {
+            yield `${i} bottles of beer on the wall, ${i} bottles of beer.`;
+            yield `Take one down and pass it around, ${i-1} bottles of beer on the wall.`;
+        }
+    }
+    yield 'No more bottles of beer on the wall, no more bottles of beer.';
+    yield 'Go to the store and buy some more, 99 bottles of beer on the wall.';
 }
 
 
@@ -47,7 +60,14 @@ function* get99BottlesOfBeer() {
  *
  */
 function* getFibonacciSequence() {
-    throw new Error('Not implemented');
+    let next1 = 0;
+    let next2 = 1;
+    while(true) {
+        let fibNum = next1;
+        next1 = next2;
+        next2 = next2 + fibNum;
+        yield fibNum;
+    }
 }
 
 
@@ -82,6 +102,13 @@ function* getFibonacciSequence() {
  *
  */
 function* depthTraversalTree(root) {
+    // yield root;
+    // if (root.children) {
+    //     for (var i = 0; i < root.children.length; i++) {
+    //         let childNode = root.children[i];
+    //         yield* depthTraversalTree(childNode);
+    //     }
+    // }
     throw new Error('Not implemented');
 }
 
@@ -108,6 +135,14 @@ function* depthTraversalTree(root) {
  *
  */
 function* breadthTraversalTree(root) {
+    // let nodesToTraverse = [root];
+    // while (nodesToTraverse.length > 0) {
+    //     let currentNode = nodesToTraverse.shift();
+    //     if (currentNode.children) {
+    //         nodesToTraverse.push(...currentNode.children);
+    //     }
+    //     yield currentNode;
+    // }
     throw new Error('Not implemented');
 }
 
